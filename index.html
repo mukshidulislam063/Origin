@@ -5,29 +5,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Graph Builder - Step 1</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.light { background: #f4f4f4; color: #000; }
+    body.dark { background: #1e1e1e; color: #fff; }
+
+    h1 { text-align: center; }
+
+    .theme-toggle {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 8px 12px;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 60px;
+    }
+
+    .input-table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    .input-table td, .input-table th {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    .input-table input {
+      width: 80px;
+      padding: 4px;
+      text-align: center;
+    }
+
+    .form-section {
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #007BFF;
+      color: #fff;
+      font-size: 16px;
+    }
+  </style>
 </head>
-<body>
+<body class="light">
+  <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark/Light</button>
   <h1>Graph Builder</h1>
-  <form id="graphForm">
-    <label>X-axis values (comma separated):</label><br>
-    <input type="text" id="xValues" required placeholder="e.g. 1,2,3,4"><br><br>
 
-    <label>Y-axis values (comma separated):</label><br>
-    <input type="text" id="yValues" required placeholder="e.g. 5,10,15,20"><br><br>
+  <div class="container">
 
-    <label>Select Graph Type:</label><br>
-    <select id="graphType">
-      <option value="scatter">Scatter</option>
-      <option value="line">Line</option>
-      <option value="bar">Bar</option>
-    </select><br><br>
+    <!-- Axis Labels -->
+    <div class="form-section">
+      <label>X-axis Label: </label>
+      <input type="text" id="xLabel" placeholder="e.g. Voltage">
+      <label style="margin-left:20px;">Y-axis Label: </label>
+      <input type="text" id="yLabel" placeholder="e.g. Current">
+    </div>
 
-    <label>Choose Graph Color:</label><br>
-    <input type="color" id="graphColor" value="#ff0000"><br><br>
+    <!-- Input Table -->
+    <table class="input-table" id="dataTable">
+      <tr>
+        <th>X Values</th>
+        <th>Y Values</th>
+      </tr>
+      <tr>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+      </tr>
+    </table>
+    <button onclick="addRow()">+ Add Row</button>
 
-    <button type="submit">Submit</button>
-  </form>
+    <!-- Graph Options -->
+    <div class="form-section">
+      <label>Graph Type:</label>
+      <select id="graphType" onchange="updateOptions()">
+        <option value="line">Line</option>
+        <option value="dot">Dot</option>
+        <option value="bar">Bar</option>
+      </select>
 
-  <script src="app.js"></script>
+      <div id="extraOptions"></div>
+    </div>
+
+    <div class="form-section">
+      <label>Graph Color:</label>
+      <select id="graphColor">
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="orange">Orange</option>
+        <option value="black">Black</option>
+      </select>
+    </div>
+
+    <div class="form-section">
+      <label>Graph Dimension:</label>
+      <select id="dimension">
+        <option value="2d">2D</option>
+        <option value="3d">3D</option>
+      </select>
+    </div>
+
+    <div class="form-section">
+      <label>Graph Background:</label>
+      <select id="graphBg">
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="orange">Orange</option>
+        <option value="green">Green</option>
+      </select>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-section">
+      <button onclick="submitData()">Submit</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+    }
+
+    // Add row to table
+    function addRow() {
+      const table = document.getElementById("dataTable");
+      const row = table.insertRow();
+      const cell1 = row.insertCell(0);
+      const cell2 = row.insertCell(1);
+      cell1.innerHTML = '<input type="number">';
+      cell2.innerHTML = '<input type="number">';
+    }
+
+    // Dynamic extra options
+    function updateOptions() {
+      const type = document.getElementById("graphType").value;
+      const extra = document.getElementById("extraOptions");
+      extra.innerHTML = "";
+      if (type === "line" || type === "dot") {
+        extra.innerHTML = '<label>Show Point Numbers?</label> ' +
+                          '<select id="pointNumbers"><option>Yes</option><option>No</option></select>';
+      } else if (type === "bar") {
+        extra.innerHTML = '<label>Bar Display:</label> ' +
+                          '<select id="barOption"><option>Percentage</option><option>Point Numbers</option></select>';
+      }
+    }
+
+    // Collect data & save
+    function submitData() {
+      const table = document.getElementById("dataTable");
+      const x = [], y = [];
+      for (let i = 1; i < table.rows.length; i++) {
+        const xv = table.rows[i].cells[0].querySelector("input").value;
+        const yv = table.rows[i].cells[1].querySelector("input").value;
+        if (xv !== "" && yv !== "") {
+          x.push(Number(xv));
+          y.push(Number(yv));
+        }
+      }
+
+      localStorage.setItem("xValues", JSON.stringify(x));
+      localStorage.setItem("yValues", JSON.stringify(y));
+      localStorage.setItem("xLabel", document.getElementById("xLabel").value);
+      localStorage.setItem("yLabel", document.getElementById("yLabel").value);
+      localStorage.setItem("graphType", document.getElementById("graphType").value);
+      localStorage.setItem("graphColor", document.getElementById("graphColor").value);
+      localStorage.setItem("dimension", document.getElementById("dimension").value);
+      localStorage.setItem("graphBg", document.getElementById("graphBg").value);
+
+      if (document.getElementById("pointNumbers")) {
+        localStorage.setItem("pointNumbers", document.getElementById("pointNumbers").value);
+      }
+      if (document.getElementById("barOption")) {
+        localStorage.setItem("barOption", document.getElementById("barOption").value);
+      }
+
+      window.location.href = "graph.html";
+    }
+  </script>
 </body>
 </html>
