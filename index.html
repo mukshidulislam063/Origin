@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph Builder - Step 1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Graph Builder</h1>
+  <form id="graphForm">
+    <label>X-axis values (comma separated):</label><br>
+    <input type="text" id="xValues" required placeholder="e.g. 1,2,3,4"><br><br>
+
+    <label>Y-axis values (comma separated):</label><br>
+    <input type="text" id="yValues" required placeholder="e.g. 5,10,15,20"><br><br>
+
+    <label>Select Graph Type:</label><br>
+    <select id="graphType">
+      <option value="scatter">Scatter</option>
+      <option value="line">Line</option>
+      <option value="bar">Bar</option>
+    </select><br><br>
+
+    <label>Choose Graph Color:</label><br>
+    <input type="color" id="graphColor" value="#ff0000"><br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script src="app.js"></script>
+</body>
+</html>
